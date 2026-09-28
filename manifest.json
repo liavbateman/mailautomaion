@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Gmail HTML Composer",
-  "version": "3.1.0",
+  "version": "3.1.1",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzbuXuTlExcaw+fwM1lwSPeRO0kS8vVX9HahqvblOkNRB73mQJGAt2TbkVuJmeZrhwwCtnPMizyjh90KIUtGNlBI06VvM/zoiP/UsxsddboO3IbkIP4DVT1ORVCMN8hokz2WD811qrPU+/OyuJwrBA8ePkQVenzuGIeN7nTEkHhZUeWLGGLqDjA8HlyhFvVhwzbSGdga6RkjIir9lo1+h/9zmCRv2QVZJ42hc9rc3d4meAZ3MeuMcGMYx9FaJVABeh7eSgTYVenXv6pSFGsI7Hnv3+ocAN7oFfbpSYmdKUjfp49YeomJYt5g6GhCHxc+PEA7E2w5rSW9RnFxFtogPIQIDAQAB",
   "description": "כתיבת HTML ישירות בחלון הכתיבה של Gmail ושליחה מותאמת אישית לרשימת נמענים מ-Excel.",
   "permissions": ["storage", "identity"],
   "host_permissions": [

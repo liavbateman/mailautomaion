@@ -14,11 +14,15 @@
 
 התקנה: `chrome://extensions` ← מצב מפתח ← Load unpacked ← בוחרים את התיקייה הזאת. אחרי כל שינוי לוחצים ↻ ומרעננים את Gmail.
 
+**Git:** הקוד נמצא ב-GitHub במאגר `liavbateman/mailautomaion` (פרטי, ענף main). המשתמש עובד משני מחשבים: Commit ו-Push אחרי שינוי, Pull במחשב השני.
+
+**מזהה קבוע:** ל-manifest.json יש שדה `key`, ולכן מזהה התוסף הוא תמיד `fnohflpfpdgplgpfgkhnkokcdmmkgmcn` בכל מחשב ובכל תיקייה, וה-Redirect URI של OAuth הוא תמיד `https://fnohflpfpdgplgpfgkhnkokcdmmkgmcn.chromiumapp.org/`. לא לשנות ולא למחוק את `key`: זה ישנה את המזהה, ימחק בפועל את כל ההגדרות השמורות (`chrome.storage.local` שייך למזהה) וישבור את ההתחברות ל-Google. המפתח הפרטי (`.pem`) שמור מחוץ ל-Git, ב-`D:\Cluade\keys\`, ונחוץ רק לאריזת `.crx`.
+
 ## מבנה הקבצים
 
 | קובץ | תפקיד |
 |---|---|
-| `manifest.json` | הגדרות התוסף, גרסה 3.0.0. הרשאות: storage, identity, ו-host לכתובות של Google ו-googleapis |
+| `manifest.json` | הגדרות התוסף, כולל `key` שקובע את המזהה. הרשאות: storage, identity, ו-host לכתובות של Google ו-googleapis |
 | `lib/email.js` | הלב המשותף, `globalThis.GHX`: קבועים, רשימת `BUILTIN_TEMPLATES` וקבוצות, `loadBuiltin` שמרכיב includes, `analyze()` שממלא משתנים ומנקה HTML, ממיר `<style>` ל-inline, מאחד גופנים ומחזיר אזהרות, וגם הדמיית מצב כהה, `isImageVar`, `isDocVar`, `isRetired`, `driveToDirect` |
 | `content.js` | העורך בתוך Gmail: חלון בתוך Shadow DOM, שדות משתנים, בורר Drive, העלאה ל-Drive בלחיצה, כפתורי מסמך, הכנסה לגוף המייל |
 | `background.js` | Service worker: פתיחת עמוד השליחה, בדיקה אם תמונה ציבורית (fetch בלי cookies), ו-Drive API (עיון, חיפוש, העלאה, שיתוף ציבורי) |
