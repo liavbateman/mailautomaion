@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>שליחה לרשימה — Gmail HTML Composer</title>
+  <link rel="stylesheet" href="merge.css">
+</head>
+<body>
+  <header class="top">
+    <h1>שליחה לרשימה</h1>
+    <span class="account" id="account-badge"></span>
+  </header>
+
+  <main class="layout">
+    <div class="steps">
+
+      <!-- 1. Google account -->
+      <section class="card" id="step-auth">
+        <h2><span class="num">1</span> חיבור לחשבון Gmail</h2>
+        <div class="row">
+          <label for="client-id">Client ID</label>
+          <input type="text" id="client-id" dir="ltr" placeholder="1234-abc.apps.googleusercontent.com">
+        </div>
+        <div class="row">
+          <button id="connect" class="primary">התחברות ל-Google</button>
+          <button id="disconnect" hidden>התנתקות</button>
+          <span id="auth-status" class="muted"></span>
+        </div>
+        <details id="setup-guide">
+          <summary>הגדרה חד-פעמית ב-Google Cloud (כ-10 דקות)</summary>
+          <ol>
+            <li>נכנסים ל-<a href="https://console.cloud.google.com/projectcreate" target="_blank" rel="noopener">console.cloud.google.com</a> עם החשבון שממנו שולחים, ויוצרים פרויקט חדש (למשל "Startup Kid Mailer").</li>
+            <li>בתפריט: <b>APIs &amp; Services ← Library</b>, מחפשים <b>Gmail API</b> ולוחצים <b>Enable</b>. באותה דרך מפעילים גם <b>Google Drive API</b> (לכפתור "החלפה" של תמונות בעורך).</li>
+            <li><b>APIs &amp; Services ← OAuth consent screen</b>: ממלאים שם אפליקציה ומייל. ב-User type בוחרים <b>Internal</b> (בחשבון Google Workspace של הארגון). בחשבון Gmail פרטי: External, ובשלב Test users מוסיפים את המייל שלכם.</li>
+            <li><b>APIs &amp; Services ← Credentials ← Create credentials ← OAuth client ID</b>. סוג: <b>Web application</b>.</li>
+            <li>תחת <b>Authorized redirect URIs</b> לוחצים Add URI ומדביקים בדיוק את הכתובת הזאת:
+              <div class="copy"><code id="redirect-uri" dir="ltr"></code><button id="copy-redirect" class="small">העתקה</button></div>
+            </li>
+            <li>לוחצים Create, מעתיקים את ה-<b>Client ID</b> ומדביקים אותו בשדה למעלה.</li>
+          </ol>
+          <p class="muted">הכתובת בשלב 5 קשורה לתיקייה שבה התוסף מותקן. אם מעבירים את התיקייה, צריך לעדכן אותה ב-Google Cloud.</p>
+        </details>
+      </section>
+
+      <!-- 2. Template -->
+      <section class="card" id="step-template">
+        <h2><span class="num">2</span> תבנית ונושא</h2>
+        <div class="row">
+          <label for="source">תבנית</label>
+          <select id="source"></select>
+        </div>
+        <div class="row">
+          <label for="subject">נושא</label>
+          <input type="text" id="subject">
+        </div>
+        <div class="row">
+          <label for="from-name">שם השולח</label>
+          <input type="text" id="from-name" placeholder="למשל: ליאב בייטמן | סטארטאפ קיד">
+        </div>
+        <p class="muted">אפשר להשתמש במשתנים גם בנושא, למשל: <code>הצעה לשיתוף פעולה עם {{שם הארגון}}</code></p>
+        <div id="template-warnings"></div>
+        <div class="row" style="margin-top:10px">
+          <label><input type="checkbox" id="ab-enabled"> בדיקת A/B: חצי מהרשימה יקבלו גרסה אחרת</label>
+        </div>
+        <div id="ab-box" hidden>
+          <div class="row">
+            <label for="source-b">גרסה B</label>
+            <select id="source-b"></select>
+          </div>
+          <div class="row">
+            <label for="subject-b">נושא B</label>
+            <input type="text" id="subject-b" placeholder="ריק = אותו נושא כמו בגרסה A">
+          </div>
+          <p class="muted">הנמענים מתחלקים לסירוגין: אחד מקבל A, הבא B. כדי ליצור גרסה B: פותחים את העורך ב-Gmail, משנים מה שרוצים לבדוק, ולוחצים "שמירה כתבנית". אחרי השליחה, "ייצוא תוצאות" מראה מי קיבל איזו גרסה, כדי להשוות למי שענה.</p>
+          <div id="template-warnings-b"></div>
+        </div>
+      </section>
+
+      <!-- 3. Recipients -->
+      <section class="card" id="step-list">
+        <h2><span class="num">3</span> רשימת נמענים</h2>
+        <div class="row">
+          <label for="file">קובץ</label>
+          <input type="file" id="file" accept=".xlsx,.xls,.csv,.ods">
+        </div>
+        <div class="row" id="sheet-row" hidden>
+          <label for="sheet">גיליון</label>
+          <select id="sheet"></select>
+        </div>
+        <div id="mapping" hidden>
+          <h3>התאמת עמודות</h3>
+          <div class="row">
+            <label for="email-col">עמודת המייל</label>
+            <select id="email-col"></select>
+          </div>
+          <div id="var-map"></div>
+        </div>
+        <div id="list-summary" class="summary" hidden></div>
+        <div class="row" style="margin-top:10px">
+          <label><input type="checkbox" id="skip-previous"> לדלג על מי שכבר קיבל מייל בקמפיין קודם</label>
+        </div>
+        <details>
+          <summary>רשימת הסרה (לא לשלוח לכתובות האלה)</summary>
+          <textarea id="suppress" dir="ltr" rows="4" placeholder="כתובת אחת בכל שורה"></textarea>
+        </details>
+      </section>
+
+      <!-- 4. Send -->
+      <section class="card" id="step-send">
+        <h2><span class="num">4</span> שליחה</h2>
+        <div class="row">
+          <label for="test-to">מייל בדיקה</label>
+          <input type="email" id="test-to" dir="ltr">
+          <button id="send-test">שליחת בדיקה</button>
+        </div>
+        <p class="muted">הבדיקה נשלחת עם הנתונים של השורה שמוצגת בתצוגה המקדימה.</p>
+        <div class="row">
+          <label for="campaign">שם הקמפיין</label>
+          <input type="text" id="campaign">
+        </div>
+        <p class="muted">מונע שליחה כפולה: מי שכבר קיבל מייל בקמפיין עם השם הזה לא יקבל אותו שוב, גם אם טוענים את הקובץ מחדש.</p>
+        <div class="row">
+          <label for="delay">השהיה בין מיילים</label>
+          <input type="number" id="delay" min="2" max="120" step="1" value="6" class="short"> <span class="muted">שניות</span>
+        </div>
+        <div class="row">
+          <label><input type="checkbox" id="list-unsub" checked> כותרת הסרה (List-Unsubscribe)</label>
+        </div>
+        <p class="muted">מגבלת Gmail: עד 2,000 מיילים ביום בחשבון Workspace (500 בחשבון פרטי). החשבון עלול להיחסם זמנית אם עוברים אותה.</p>
+        <div class="row">
+          <button id="start" class="primary">התחלת שליחה</button>
+          <button id="pause" hidden>השהיה</button>
+          <button id="export" hidden>ייצוא תוצאות</button>
+        </div>
+        <div id="progress" hidden>
+          <div class="bar"><div class="fill" id="progress-fill"></div></div>
+          <div id="progress-text" class="muted"></div>
+        </div>
+        <div id="message" class="message" hidden></div>
+      </section>
+
+      <section class="card" id="log-card" hidden>
+        <h2>נמענים</h2>
+        <div class="table-wrap">
+          <table id="log">
+            <thead><tr><th>#</th><th>מייל</th><th id="log-org-head">שם</th><th>נשלח בעבר</th><th>סטטוס</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card" id="backup">
+        <h2>גיבוי והעברה למחשב אחר</h2>
+        <p class="muted">קובץ אחד עם כל ההגדרות: Client ID, הערכים שמילאתם בשדות (כולל קישורי התמונות מ-Drive), התבניות שלכם, רשימת ההסרה, היסטוריית השליחה, וגם ההעדפות.</p>
+        <div class="row">
+          <button id="export-settings">⬇ ייצוא הגדרות</button>
+          <button id="import-settings">⬆ ייבוא הגדרות</button>
+          <input type="file" id="import-file" accept=".json,application/json" hidden>
+        </div>
+        <p class="muted">בייבוא הנתונים <b>מתמזגים</b> עם מה שכבר יש במחשב הזה, ושום דבר לא נמחק. היסטוריית השליחה ורשימת ההסרה מתאחדות, כדי שאף אחד לא יקבל את אותו מייל פעמיים. הקובץ כולל כתובות מייל של נמענים, אז לא לשתף אותו עם אנשים מחוץ לצוות.</p>
+        <p class="muted">במחשב החדש צריך להוסיף ב-Google Cloud, באותו Client ID, גם את כתובת ההפניה שלו. היא מופיעה בשלב 1, כי היא שונה בכל מחשב.</p>
+        <div id="backup-message" class="message" hidden></div>
+      </section>
+    </div>
+
+    <aside class="preview-pane">
+      <div class="preview-head">
+        <button id="prev" class="small" title="הקודם">→</button>
+        <span id="preview-pos" class="muted">אין נתונים</span>
+        <button id="next" class="small" title="הבא">←</button>
+        <span class="grow"></span>
+        <span class="seg">
+          <button data-device="desktop">מחשב</button><button data-device="mobile">נייד</button>
+        </span>
+        <span class="seg">
+          <button data-theme="light">בהיר</button><button data-theme="full">כהה</button>
+        </span>
+      </div>
+      <div class="envelope">
+        <div><span class="muted">אל:</span> <span id="preview-to" dir="ltr"></span></div>
+        <div><span class="muted">נושא:</span> <span id="preview-subject"></span></div>
+        <div id="preview-history"></div>
+        <div id="preview-status"></div>
+      </div>
+      <div id="preview" class="preview"></div>
+    </aside>
+  </main>
+
+  <script src="lib/xlsx.full.min.js"></script>
+  <script src="lib/email.js"></script>
+  <script src="merge.js"></script>
+</body>
+</html>

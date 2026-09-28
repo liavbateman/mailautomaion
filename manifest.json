@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "Gmail HTML Composer",
+  "version": "3.1.0",
+  "description": "כתיבת HTML ישירות בחלון הכתיבה של Gmail ושליחה מותאמת אישית לרשימת נמענים מ-Excel.",
+  "permissions": ["storage", "identity"],
+  "host_permissions": [
+    "https://*.googleusercontent.com/*",
+    "https://drive.google.com/*",
+    "https://gmail.googleapis.com/*",
+    "https://www.googleapis.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_ui": {
+    "page": "merge.html#backup",
+    "open_in_tab": true
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["templates/*", "templates/img/*", "templates/partials/*", "templates/service/*", "templates/marketing/*"],
+      "matches": ["https://mail.google.com/*"]
+    }
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://mail.google.com/*"],
+      "js": ["lib/email.js", "content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}

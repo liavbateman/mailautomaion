@@ -1,0 +1,18 @@
+.ghx-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  min-width: 36px;
+  padding: 0 10px;
+  margin-inline-start: 8px;
+  border-radius: 18px;
+  font: 600 13px/1 Consolas, "Courier New", monospace;
+  color: #444746;
+  cursor: pointer;
+  user-select: none;
+}
+
+.ghx-btn:hover {
+  background: rgba(68, 71, 70, 0.08);
+}

@@ -1,0 +1,16 @@
+# Local test files (see CLAUDE.md, "איך בודקים")
+_test.html
+_merge_test.html
+.claude/launch.json
+
+# Data and exports that must not be committed
+*.xlsx
+*.csv
+*backup*.json
+*.zip
+*.rar
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
